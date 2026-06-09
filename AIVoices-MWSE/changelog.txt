@@ -1,0 +1,225 @@
+CHANGELOG: V1.01 / V1.01a
+
+NOTE: If you are updating from V1.00, you do not need to run the installer again. All new settings and folders are automatically configured by main.lua and the MCM when the mod loads.
+
+V1.01a
+
+Small backend/installer cleanup update.
+
+- Replaced the generated PowerShell reference-sample script with AIVoicesBackend\build_reference_samples.py.
+- build_reference_samples.py is used by the installer and can also be run manually by advanced users to create custom XTTS reference WAVs.
+- The download now includes the AIVoicesBackend folder structure directly, making the install layout clearer and easier to troubleshoot.
+- aivoices_installer.bat will no longer prompt the user to download the kristin voice if a .onnx and matching .onnx.json file already exists.
+- aivoices_installer.bat will no longer redownload and extract ffmpeg if ffmpeg.exe already exists in AIVoicesBackend\dependencies\bin
+
+V1.01 SUMMARY
+
+This update focuses on caching, reliability, custom race support, and MCM polish.
+
+- Added generated-line caching for Piper.
+- Added generated-line caching for ElevenLabs.
+- Added cache size controls and clear-cache buttons for Piper and ElevenLabs.
+- Added Piper generation settings: Noise Scale, Noise W, and Sentence Silence.
+- Added reset-default buttons for Piper and ElevenLabs generation settings.
+- Added ElevenLabs caching so repeated dialogue can reuse cached WAVs instead of making another API request.
+- Added Piper caching so repeated dialogue can reuse cached WAVs when the same voice, text, speed, and generation settings are used.
+- Improved XTTS cache hashing for newly generated cached lines while preserving compatibility with existing XTTS cached lines.
+- Improved custom race voice-key support by generating voice keys from race IDs.
+- Added better installer checks and PyTorch / CUDA logging.
+- Fixed watcher health checks during gameplay and XTTS model loading.
+- Improved dialogue token cleanup and placeholder substitution.
+- Test voices are no longer saved to generated-line caches.
+- Reduced XTTS reference samples from about 30 seconds to about 8 seconds.
+
+
+Default cache behavior:
+- XTTS cache remains controlled by the existing XTTS settings.
+- Piper generated-line cache defaults to Off.
+- ElevenLabs generated-line cache defaults to On.
+- Cache limit range is 0 to 5000 MB.
+- A cache limit of 0 means unlimited.
+
+
+
+install_aivoices.bat
+
+Replaced the generated PowerShell reference-sample script with AIVoicesBackend\build_reference_samples.py.
+
+Will no longer prompt the user to download the kristin voice if a .onnx and matching .onnx.json file already exists.
+
+Will no longer redownload and extract ffmpeg if ffmpeg.exe already exists in \dependencies\bin
+
+Added Morrowind.exe location check at startup.
+The installer now displays an error and exits if it is not being run from the correct Morrowind folder. This helps prevent silent installer failure when using a mod manager.
+
+Added existing-install version detection.
+The installer now writes the AI Voices version to aivoices_installed.txt and checks it on future runs. If an older install is detected, the installer explains that V1.01 usually does not require reinstalling. If the current version is already installed, the installer says so and offers to continue only for adding or repairing voice engines.
+
+Updated installer text for V1.01.
+The installer now better explains XTTS, Piper, and ElevenLabs cache behavior, including that ElevenLabs runtime caching is enabled by default, Piper caching is available but off by default, and test voices are not saved to generated-line caches.
+
+Added Piper settings file creation during install.
+Fresh Piper installs now create piper_settings.txt with cache and generation defaults.
+
+Updated ElevenLabs settings file creation during install.
+Fresh ElevenLabs installs now include generated-line cache defaults in elevenlabs_settings.txt.
+
+Added PyTorch / CUDA install logging.
+The installer now records the selected PyTorch build, index URL, installed PyTorch version, CUDA availability, CUDA build, and detected GPU/CPU status in aivoices_installed.txt.
+
+Improved XTTS model-check failure text.
+XTTS model check errors now mention interrupted model downloads as a possible cause, not only license rejection.
+
+Reduced XTTS reference samples from about 30 seconds to about 8 seconds.
+This speeds up reference building and reduces sample size. Voice quality may vary depending on the source clips available for each race/gender.
+
+Advanced users can change the target length by editing the two "$totalDuration -ge 8.0" checks in install_aivoices.bat.
+
+
+
+
+uninstall_aivoices.bat
+
+Updated uninstaller warnings for V1.01.
+The uninstaller now warns that the ElevenLabs folder may contain an API key, voice map, settings, and cached generated dialogue.
+
+Updated Piper removal warning.
+The uninstaller now warns that the Piper folder may contain user-provided .onnx voices, voice maps, settings, and cached generated dialogue.
+
+
+
+
+main.lua / mcm.lua
+
+Fixed watcher health check not running in-game.
+The check was moved from a timer.real callback, which could be cancelled on game load, into onEnterFrame. AI Voices now correctly detects if watcher.py dies during gameplay.
+
+Fixed false positive "watcher died" warnings during XTTS model loading.
+Watcher health checks are now skipped while the backend status contains "loading".
+
+Improved dialogue token cleanup before sending text to TTS.
+Added support for additional Morrowind dialogue tokens including %PCNextRank, %PCCell, %PCGold, %PCCrimeLevel, %PCReputation, %Faction, and %Rank.
+
+Improved player and actor substitution handling for dialogue text.
+AI Voices now resolves more in-game placeholders before stripping unresolved tokens, reducing broken or missing words in spoken dialogue.
+
+Improved race-to-voice-key handling.
+Race voice keys are now generated from the actor's race ID instead of relying only on a hardcoded vanilla race table. This makes custom race support easier: users can add the generated race/gender key to their voice map without requiring AI Voices to know about that race ahead of time.
+
+Custom race IDs with hyphens and underscores are preserved when generating voice keys, some other mods will use this name convention for RaceID.
+Spaces are converted into camelCase before appending Male or Female.
+
+Examples:
+Dark Elf -> darkElfMale / darkElfFemale
+keptu-quey -> keptu-queyMale / keptu-queyFemale
+TR_m3_ReachmanNord -> tr_m3ReachmanNordMale / tr_m3ReachmanNordFemale
+
+These extra races can now be safely added in the voice map files.
+
+Added generated-line cache options for Piper.
+Piper can now cache generated dialogue WAVs in:
+Data Files\AIVoicesBackend\Piper\cache\generated_lines
+
+Added generated-line cache options for ElevenLabs.
+ElevenLabs can now cache generated dialogue WAVs in:
+Data Files\AIVoicesBackend\ElevenLabs\cache\generated_lines
+
+Piper cache defaults to Off.
+ElevenLabs cache defaults to On.
+
+Added cache size controls for Piper and ElevenLabs.
+Cache limits can be set from 0 to 5000 MB. Setting the limit to 0 means unlimited cache.
+
+Added clear-cache buttons for Piper and ElevenLabs.
+Each engine can now clear its own generated-line cache from the MCM.
+
+Added Piper generation settings.
+Piper now supports MCM controls for Noise Scale, Noise W, and Sentence Silence.
+
+Added reset buttons for Piper and ElevenLabs generation settings.
+These reset only generation settings. They do not reset cache settings, voice maps, model ID, output format, or API key.
+
+Updated MCM test voice behavior.
+XTTS, Piper, and ElevenLabs test voices are no longer saved to the generated-line cache.
+
+
+
+
+watcher.py
+
+Added Piper generated-line cache support.
+Cached Piper WAVs are stored by voice key and reused when the same line, voice, speed, and Piper generation settings are requested again.
+
+Added ElevenLabs generated-line cache support.
+Cached ElevenLabs WAVs are stored by voice key and reused when the same line, voice ID, model, output format, voice settings, and speed are requested again. This can reduce repeated API calls and credit usage.
+
+Added Piper generation setting support.
+watcher.py now reads noise_scale, noise_w, and sentence_silence from Piper\piper_settings.txt and passes them to piper.exe.
+
+Improved cache hashing.
+Piper cache hashes now include voice key, voice path, text, speech speed, noise scale, noise W, and sentence silence.
+ElevenLabs cache hashes now include voice key, voice ID, text, model ID, output format, voice settings, and speech speed.
+XTTS cache hashes for newly generated lines now include voice key, reference sample path, text, speech speed, temperature, repetition penalty, top K, and top P.
+
+Existing XTTS cached lines remain compatible.
+AI Voices will check for older V1.00 XTTS cached lines first. If an older cached line already exists, it will still be used. If no older cached line exists, AI Voices will generate and save the line using the improved XTTS cache hash.
+
+If you want already-cached XTTS dialogue lines to be regenerated using your current XTTS generation settings, clear the XTTS generated-line cache from the MCM.
+
+Added test voice cache logging.
+When a test voice is played, watcher.py now logs "Test voice not cached."
+
+
+
+build_reference_samples.py
+
+This replaced generated build_reference_samples.ps1 that was in V1.00/V1.01.
+
+Helper tool used by the installer to create XTTS reference samples from the user's installed Morrowind voice files. It scans the local Morrowind voice folders, selects usable MP3 clips, converts them into XTTS-friendly WAV reference files, and updates xtts_reference_map.txt.
+
+Most users do not need to run this file manually. Advanced users can also run it directly to create a custom XTTS reference WAV from their own folder of MP3 files.
+
+
+
+CONFIRMED BUGS / FIXED
+
+Watcher health check not running in-game
+Fixed in V1.01. Was using timer.real, which could be cancelled on game load.
+
+XTTS false positive "watcher died" during model loading
+Fixed in V1.01. Heartbeat may pause while XTTS loads, so health checks are now skipped while status contains "loading".
+
+install_markers did not log CUDA variant
+Fixed in V1.01. The installer now records PyTorch and CUDA/GPU status in aivoices_installed.txt.
+
+Fixed some non-dialogue text being spoken instead of the visible NPC dialogue.
+
+AI Voices now validates greeting text more carefully and skips infoGetText entries that are not visible in the dialogue menu. This fixes cases where a quest/topic title could be spoken instead of the actual dialogue line.
+
+
+
+
+KNOWN INCOMPATIBILITES
+
+MO2 / mod manager incompatibility
+The installer may run in the wrong directory when installed through a mod manager. Partially addressed in V1.01 with the Morrowind.exe location check. Manual install is still recommended.
+
+Python 3.14 installs CPU-only PyTorch
+CUDA wheels are not currently available for Python 3.14. Users should use Python 3.12 for GPU acceleration.
+
+
+
+PLANNED FOR FUTURE 
+
+PowerCache
+
+PowerCache is planned as a separate optional download. It will pre-generate selected dialogue cache files before gameplay. It is not required for normal AI Voices use.
+
+PowerCache will support XTTS and Piper.
+
+XTTS benefits because local generation can be slow, especially on weaker GPUs or CPU-only installs.
+
+Piper benefits because it is fast and local, like XTTS. This can help lower-end systems and reduce small delays during dialogue.
+
+ElevenLabs PowerCache is technically possible, but not recommended.
+Pre-generating large amounts of ElevenLabs dialogue could use a lot of API credits quickly. For now, ElevenLabs is better handled by normal runtime caching, where only actually-heard dialogue is generated and saved.
