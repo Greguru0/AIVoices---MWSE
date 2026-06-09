@@ -57,7 +57,7 @@ Online TTS using your own ElevenLabs account. High quality and fast, but require
 
 ## Installation
 
-1. Extract the contents of this zip folder into the Morrowind `Data Files` folder so that this folder exists:
+1. Extract the contents of AIVoices folder into the Morrowind `Data Files` folder so that this folder exists:
 
    ```text
    Data Files\MWSE\mods\AIVoices\
