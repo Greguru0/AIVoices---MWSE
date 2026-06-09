@@ -156,22 +156,28 @@ FAQ
 XTTS is generating speech very slowly. What can I do?
 XTTS performance depends on your hardware. An NVIDIA GPU is strongly recommended - on a modern NVIDIA card, short lines typically generate in a few seconds. On CPU, generation can take significantly longer. If XTTS is too slow for comfortable play, switching to Piper or ElevenLabs in the MCM is the recommended alternative. Piper is fast even on CPU.
 
+
 No voice is playing. What should I check?
 Open the watcher console (Show Watcher Console in the MCM Watcher page) and check for error messages. Common causes are a missing or invalid voice map entry for the current NPC's race and gender, a missing reference audio file for XTTS, or a missing or invalid ElevenLabs API key.
 A specific NPC has no voice.
 Check whether the NPC's race and gender have an entry in the active engine's voice map file. If using XTTS, also confirm the reference audio path in xtts_reference_map.txt is valid. Actor-specific entries can be added to the voice map using the actor's ID or name as the key.
 
+
 Can I use this with Tamriel Rebuilt or other mods that add NPCs?
 Yes. NPCs added by other mods will use the race and gender fallback voice if their actor ID or name is not in the voice map. You can add actor-specific entries manually for any NPC.
+
 
 Does this mod work without an NVIDIA GPU?
 Yes. XTTS will run on CPU, but generation will be much slower. Piper is the recommended engine for CPU-only systems. ElevenLabs has no local performance requirement.
 
+
 Will this work with OpenMW?
 No. AI Voices requires MWSE, which is not compatible with OpenMW.
 
+
 Is Bethesda audio uploaded or redistributed?
 No. XTTS reference samples are built locally from your own installed Morrowind voice files during install and are never uploaded, shared, or distributed.
+
 
 Credits
 Created by Greguru (Nexus Mods: Diablo0987)
