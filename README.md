@@ -196,6 +196,6 @@ This repository does not include Bethesda game files, Morrowind voice files, gen
 Users are responsible for complying with the licenses and terms of any external tools, models, or services they choose to install or use, including FFmpeg, Piper, Coqui/XTTS, PyTorch, and ElevenLabs.
 
 Nexus Mods: https://www.nexusmods.com/morrowind/mods/59250
-Github: 
+Github: https://github.com/Greguru0/AIVoices---MWSE/tree/main
 
 Email: GreguruGames@protonmail.me
